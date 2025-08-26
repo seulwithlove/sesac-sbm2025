@@ -3,8 +3,6 @@ Social Book &amp; Mark
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
 npm run dev
 # or
@@ -215,9 +213,24 @@ Auth key 생성 (.env.local에 자동으로 생성)
 pnpm dlx auth secret
 ```
 
+database & user 생성
+```mysql
+mysql> create database sbmdb;
+Query OK, 1 row affected (0.010 sec)
+
+mysql> create user sbm@'%' identified by 'Book&Mark1';
+Query OK, 0 rows affected (0.030 sec)
+
+mysql> grant all privileges on sbmdb.* to sbm@'%';
+Query OK, 0 rows affected (0.012 sec)
+
+mysql> flush privileges;
+Query OK, 0 rows affected (0.021 sec)
+```
+
 .env.local
 ```
-DATABASE_URL="mysql://bookmarker@--@127.0.0.1:3309/bookmarkdb?connection_limit=5&pool_timeout=10"
+DATABASE_URL="mysql://sbm@--@127.0.0.1:3309/sbmdb?connection_limit=5&pool_timeout=10"
 
 AUTH_SECRET="FzF89ROlg5pOU/GBwHLxvJN"
 
@@ -304,6 +317,11 @@ export default nextConfig;
 pnpm add -D prisma
 ```
 
+dotenv-cli 설치하여 dotenv 명령 사용
+```bash
+pnpm add -D dotenv-cli
+```
+
 ```bash
 pnpm dlx prisma init --datasource-provider mysql
 # ==> 이런 후 .env 지우고 .env.local에 연결정보 세팅
@@ -329,6 +347,20 @@ package.json에 script 설정
 "prisma": {
   "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
 },
+```
+
+```sql
+create table Member (
+    id int unsigned not null auto_increment primary key,
+    createdAt timestamp not null default current_timestamp,
+    updatedAt timestamp not null default current_timestamp on update current_timestamp,
+    nickname varchar(31) not null,
+    email varchar(255) not null,
+    passwd varchar(128) null, 
+    image varchar(255) null,
+    introduce varchar(1024) null,
+    UNIQUE KEY `uniq_Member_email` (`email`)
+);
 ```
 
 ```
